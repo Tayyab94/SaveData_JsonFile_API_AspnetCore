@@ -1,0 +1,127 @@
+﻿@model MessageApp.Models.ViewModels.MessageSenderViewModel
+@{
+    ViewData["Title"] = "MessageSender";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Message Form</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="MessageSender" asp-controller="Home" method="post">
+
+                        <div class="mb-3">
+                            <label for="senderID" class="form-label">Sender ID</label>
+                            <input type="text" asp-for="senderID" class="form-control" id="senderID" placeholder="Sender ID">
+                            <span asp-validation-for="senderID" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="receiverID" class="form-label">Receiver ID</label>
+                            <input type="text" asp-for="receiverID" class="form-control" id="receiverID" placeholder="Receiver ID">
+                            <span asp-validation-for="receiverID" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="msg" class="form-label">Write Message</label>
+                            <input type="text" asp-for="msg" class="form-control" id="msg" placeholder="Write a message">
+                            <span asp-validation-for="msg" class="text-danger"></span>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6">
+            <div class="row">
+                <form class="form-inline">
+                    <div class="form-group mb-2">
+                        <label for="receiverid">Receiver ID</label>
+                        <input type="text" class="form-control" id="receiverid" required placeholder="Enter Receiver ID">
+                    </div>
+                    <div class="form-group mx-sm-3 mb-2">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="idDelete">
+                            <label class="form-check-label" for="idDelete">Purge</label>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary mb-2 browseMsgBtn">Browse Message</button>
+                </form>
+                </div>
+                <div id="msgBox">
+                   
+                </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script type="text/javascript">
+            $(document).ready(function(){
+            $(".browseMsgBtn").click(function(){
+                $('#msgBox').text("");
+               $.ajax({
+                   url:"/Home/Index1",
+                    data: { receiverId: $("#receiverid").val(), isTrue: $('#idDelete').is(":checked")}
+               }).done(function(data){
+                 
+                    if(data.msgData.length==0 || data.msgData ==null)
+                    {
+                        $('#msgBox').append('<h2 style="color: red">No Record Found</h2>');
+                    }else {
+                        if ($('#idDelete').is(":checked"))
+                        {
+                            $('#msgBox').append('<h2 style="color: red">All Messages have been Deleted!</h2>');
+                        }else{
+                            $.each(data.msgData, function (index, message) {
+                                var messageHtml = '<div class="message">' +
+                                    '<h4> Sender ID ' + message.senderID + '</h2>' +
+                                    '<h4> Receiver ID=>' + message.receiverID + '</h2>' +
+                                    '<p>Message</p>' +
+                                    '<p>' + message.msg + '</p>' +
+                                    '</div>';
+                                $('#msgBox').append(messageHtml);
+                            });
+                        } 
+                    } 
+               }).fail(function(err){
+
+               })
+            })
+
+            })
+    </script>
+}
+
+@*
+       var dynamic = "";
+
+         for (i = 0; i < data.length; i++) {
+
+         dynamic += '<div id="' + data[i].id_game + '" data-id="'+data[id]+'" class="TopContainerCel">
+    '
+    + '    <div class="TopContainerCelBackground">
+        '
+        + '          <img class="TopContainerCelImage" src="' + data[i].CoverImage + '" />'
+        + '
+    </div>'
+    + '    <div class="TopContainerCelName">' + data[i].Name + '</div>'
+    + '
+</div>'
+               };
+
+          $('#GameContainer').append(''
+               + '<div class="TopContainerScroll">
+    '
+    + dynamic
+    + '
+</div>');
+
+        }*@
